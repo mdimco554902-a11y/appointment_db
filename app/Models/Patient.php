@@ -15,6 +15,7 @@ class Patient extends Model
     // Allows mass assignment for these specific fields
     protected $fillable = [
         'FirstName',
+        'MiddleName', // Added MiddleName to match database design
         'LastName',
         'Email',
         'Phone',

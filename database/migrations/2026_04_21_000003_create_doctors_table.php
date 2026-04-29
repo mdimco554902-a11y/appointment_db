@@ -9,17 +9,29 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up(): void
-{
-    Schema::create('doctors', function (Blueprint $table) {
-        $table->id('DoctorID'); // This creates the primary key
-        $table->string('FirstName');
-        $table->string('LastName');
-        $table->string('Specialization');
-        $table->string('Email')->unique(); // Add this line if it's missing
-        $table->timestamps();
-    });
-}
+    public function up(): void
+    {
+        Schema::create('doctors', function (Blueprint $table) {
+            $table->id('DoctorID'); 
+            
+            // Link to the departments table
+            $table->unsignedBigInteger('DeptID'); 
+            
+            // Use FName/LName to match your Controller/Model logic
+            $table->string('FName');
+            $table->string('MName')->nullable();
+            $table->string('LName');
+            $table->string('Specialization');
+            
+            $table->timestamps();
+
+            // Setup the foreign key relationship
+            $table->foreign('DeptID')
+                  ->references('DeptID')
+                  ->on('departments')
+                  ->onDelete('cascade');
+        });
+    }
 
     /**
      * Reverse the migrations.

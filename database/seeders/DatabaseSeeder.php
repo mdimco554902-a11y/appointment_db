@@ -8,19 +8,25 @@ use App\Models\Doctor;
 
 class DatabaseSeeder extends Seeder
 {
+    /**
+     * Seed the application's database.
+     */
     public function run(): void
     {
         // 1. Create a Department first (The parent table)
+        // Ensure 'DepartmentName' matches your migration column exactly
         $dept = Department::updateOrCreate(
             ['DepartmentName' => 'Cardiology'],
-            ['Description' => 'Heart and Vascular Center']
+            ['Description' => 'Heart and vascular disorders and treatments.']
         );
 
         // 2. Create a Doctor linked to that Department
+        // CHANGED: Use 'FName' and 'LName' to match your updated migration
         Doctor::updateOrCreate(
-            ['FirstName' => 'Sarah', 'LastName' => 'Johnson'],
+            ['FName' => 'Sarah', 'LName' => 'Johnson'],
             [
-                'Specialization' => 'Cardiologist',
+                'MName' => null,
+                'Specialization' => 'Cardiology',
                 'DeptID' => $dept->DeptID
             ]
         );

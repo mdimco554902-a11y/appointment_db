@@ -9,16 +9,28 @@ use App\Models\Doctor;
 
 class AppointmentController extends Controller
 {
-  public function index() {
-    $appointments = Appointment::with(['patient', 'doctor'])->latest('AppointmentID')->get();
-    
-    $totalAppointments = Appointment::count(); // Add this line
-    $totalPatients = Patient::count();
-    $activeDoctors = Doctor::count();
-    
-    // Add totalAppointments to the compact list below
-    return view('dashboard', compact('appointments', 'totalPatients', 'activeDoctors', 'totalAppointments'));
-}
+    public function index() {
+        // Change: Use oldest('AppointmentID') so new records appear at the bottom
+        $appointments = Appointment::with(['patient', 'doctor'])->oldest('AppointmentID')->get();
+        
+        $totalAppointments = Appointment::count(); 
+        $totalPatients = Patient::count();
+        $activeDoctors = Doctor::count();
+        
+        return view('dashboard', compact('appointments', 'totalPatients', 'activeDoctors', 'totalAppointments'));
+    }
+
+    /**
+     * NEW: Method for the dedicated Appointments sidebar page.
+     * This fetches patients and doctors so they appear in your "New Appointment" modal.
+     */
+    public function appointmentsIndex() {
+        $appointments = Appointment::with(['patient', 'doctor'])->oldest('AppointmentID')->get();
+        $patients = Patient::all();
+        $doctors = Doctor::all();
+        
+        return view('appointments.index', compact('appointments', 'patients', 'doctors'));
+    }
 
     public function store(Request $request) {
         // 1. Get all data from the form
@@ -32,17 +44,34 @@ class AppointmentController extends Controller
         // 3. Create the appointment
         try {
             Appointment::create($data);
-            return redirect()->route('dashboard')->with('success', 'Saved successfully!');
+            
+            // Professional touch: Redirect back to the page the user came from
+            return redirect()->back()->with('success', 'Appointment saved successfully!');
         } catch (\Exception $e) {
-            // This displays the specific error if the database rejects the save
+            return back()->withErrors(['msg' => $e->getMessage()]);
+        }
+    }
+
+    public function update(Request $request, $id) {
+        $appointment = Appointment::where('AppointmentID', $id)->firstOrFail();
+
+        $validated = $request->validate([
+            'AppointmentTime' => 'required',
+            'Status' => 'required|string',
+        ]);
+
+        try {
+            $appointment->update($validated);
+            return redirect()->back()->with('success', 'Appointment updated successfully!');
+        } catch (\Exception $e) {
             return back()->withErrors(['msg' => $e->getMessage()]);
         }
     }
 
     public function destroy($id) {
-        $appointment = Appointment::findOrFail($id);
+        $appointment = Appointment::where('AppointmentID', $id)->firstOrFail();
         $appointment->delete();
 
-        return redirect()->route('dashboard')->with('success', 'Appointment cancelled.');
+        return redirect()->back()->with('success', 'Appointment cancelled.');
     }
 }

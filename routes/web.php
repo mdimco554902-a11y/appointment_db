@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AppointmentController;
-use App\Http\Controllers\PatientController; // Added this for Patient functionality
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\DepartmentController; // Added for Department functionality
 
 // --- GUEST ROUTES ---
 Route::middleware('guest')->group(function () {
@@ -14,21 +16,30 @@ Route::middleware('guest')->group(function () {
 // --- AUTHENTICATED ROUTES ---
 Route::middleware('auth')->group(function () {
     
-    // Dashboard
+    // Dashboard (Overview)
     Route::get('/dashboard', [AppointmentController::class, 'index'])->name('dashboard');
 
-    // Appointment Actions
+    // --- Appointments Page Routes ---
+    Route::get('/appointments', [AppointmentController::class, 'appointmentsIndex'])->name('appointments.index');
     Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
+    Route::put('/appointments/{id}', [AppointmentController::class, 'update'])->name('appointments.update');
     Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
 
-    // --- UPDATED: Patient Records Routes ---
+    // --- Patient Records Routes ---
     Route::get('/patients', [PatientController::class, 'index'])->name('patients.index');
     Route::post('/patients', [PatientController::class, 'store'])->name('patients.store');
     Route::delete('/patients/{id}', [PatientController::class, 'destroy'])->name('patients.destroy');
 
-    // Sidebar Placeholder Routes (Remaining)
-    Route::get('/doctors', function() { return "Doctors Page - Coming Soon"; })->name('doctors.index');
-    Route::get('/departments', function() { return "Departments Page - Coming Soon"; })->name('departments.index');
+    // --- Doctors Routes ---
+    Route::get('/doctors', [DoctorController::class, 'index'])->name('doctors.index');
+    Route::post('/doctors', [DoctorController::class, 'store'])->name('doctors.store');
+    Route::put('/doctors/{id}', [DoctorController::class, 'update'])->name('doctors.update');
+    Route::delete('/doctors/{id}', [DoctorController::class, 'destroy'])->name('doctors.destroy');
+
+    // --- UPDATED: Department Routes (No longer "Coming Soon") ---
+    Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
+    Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
+    Route::delete('/departments/{id}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
 
     // Logout (MUST BE POST)
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

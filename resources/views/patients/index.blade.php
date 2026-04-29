@@ -42,6 +42,34 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .header h1 { margin: 0; font-size: 28px; }
 
+        /* Search Bar Styling */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+        }
+        .search-icon {
+            width: 18px;
+            height: 18px;
+            color: #95a5a6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .search-input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+            margin-left: 12px;
+            background: transparent;
+        }
+
         /* Table/Card Design */
         .content-card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -87,6 +115,8 @@
             padding: 30px; 
             border-radius: 10px; 
             width: 400px; 
+            max-height: 90vh;
+            overflow-y: auto;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         .modal-input {
@@ -106,12 +136,12 @@
         <div class="role">Admin Dashboard</div>
         
         <div class="nav-menu">
-            <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
-            <a href="{{ route('patients.index') }}" class="nav-item {{ request()->routeIs('patients.index') ? 'active' : '' }}">Patient Records</a>
-            <a href="#" class="nav-item">Appointments</a>
-            <a href="{{ route('doctors.index') }}" class="nav-item">Doctors</a>
-            <a href="{{ route('departments.index') }}" class="nav-item">Departments</a>
-        </div>
+    <a href="{{ route('dashboard') }}" class="nav-item">Dashboard</a>
+    <a href="{{ route('patients.index') }}" class="nav-item">Patient Records</a>
+    <a href="{{ route('appointments.index') }}" class="nav-item">Appointments</a>
+    <a href="{{ route('doctors.index') }}" class="nav-item">Doctors</a>
+    <a href="{{ route('departments.index') }}" class="nav-item">Departments</a>
+</div>
 
         <form action="{{ route('logout') }}" method="POST">
             @csrf
@@ -128,8 +158,17 @@
             <button onclick="document.getElementById('patientModal').style.display='flex'" class="btn-create">+ Add Patient</button>
         </div>
 
+        <div class="search-container">
+            <div class="search-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg>
+            </div>
+            <input type="text" id="patientSearchInput" class="search-input" placeholder="Search by ID, Name, or Email..." onkeyup="filterPatientTable()">
+        </div>
+
         <div class="content-card">
-            <table>
+            <table id="patientTable">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -141,10 +180,13 @@
                 </thead>
                 <tbody>
                     @forelse($patients as $patient)
-                    <tr>
-                        <td>#{{ $patient->PatientID }}</td>
-                        <td>{{ $patient->FirstName }} {{ $patient->LastName }}</td>
-                        <td>{{ $patient->Email }}</td>
+                    <tr class="patient-row">
+                        <td class="patient-id">#{{ $patient->PatientID }}</td>
+                        <td class="patient-name">
+                            {{ $patient->FirstName }} 
+                            {{ $patient->MiddleName ? $patient->MiddleName . ' ' : '' }}{{ $patient->LastName }}
+                        </td>
+                        <td class="patient-email">{{ $patient->Email }}</td>
                         <td>{{ $patient->Phone ?? 'N/A' }}</td>
                         <td>
                             <form action="{{ route('patients.destroy', $patient->PatientID) }}" method="POST" onsubmit="return confirm('Delete this record?')">
@@ -154,7 +196,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr>
+                    <tr id="noResultsRow">
                         <td colspan="5" style="text-align:center; padding: 30px; color: #95a5a6;">No patients recorded yet.</td>
                     </tr>
                     @endforelse
@@ -172,6 +214,9 @@
                 <label style="font-size: 13px; color: #666;">First Name</label>
                 <input type="text" name="FirstName" placeholder="Enter first name" required class="modal-input">
                 
+                <label style="font-size: 13px; color: #666;">Middle Name</label>
+                <input type="text" name="MiddleName" placeholder="Enter middle name" class="modal-input">
+                
                 <label style="font-size: 13px; color: #666;">Last Name</label>
                 <input type="text" name="LastName" placeholder="Enter last name" required class="modal-input">
                 
@@ -188,6 +233,27 @@
             </form>
         </div>
     </div>
+
+    <script>
+        function filterPatientTable() {
+            const input = document.getElementById('patientSearchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('patientTable');
+            const rows = table.getElementsByClassName('patient-row');
+
+            for (let i = 0; i < rows.length; i++) {
+                const idCell = rows[i].getElementsByClassName('patient-id')[0].textContent.toLowerCase();
+                const nameCell = rows[i].getElementsByClassName('patient-name')[0].textContent.toLowerCase();
+                const emailCell = rows[i].getElementsByClassName('patient-email')[0].textContent.toLowerCase();
+
+                if (idCell.includes(filter) || nameCell.includes(filter) || emailCell.includes(filter)) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    </script>
 
 </body>
 </html>
