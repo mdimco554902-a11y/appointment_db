@@ -8,24 +8,29 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * This table is now fully synchronized with the FirstName/LastName naming convention.
      */
     public function up(): void
     {
         Schema::create('doctors', function (Blueprint $table) {
+            // Primary Key
             $table->id('DoctorID'); 
             
-            // Link to the departments table
+            // Foreign Key to Departments
             $table->unsignedBigInteger('DeptID'); 
             
-            // Use FName/LName to match your Controller/Model logic
-            $table->string('FName');
-            $table->string('MName')->nullable();
-            $table->string('LName');
+            // Professional Name Columns
+            $table->string('FirstName');
+            $table->string('MiddleName')->nullable(); // Optional field
+            $table->string('LastName');
+            
+            // Professional Details
             $table->string('Specialization');
             
+            // Standard timestamps (created_at, updated_at)
             $table->timestamps();
 
-            // Setup the foreign key relationship
+            // Foreign Key constraint
             $table->foreign('DeptID')
                   ->references('DeptID')
                   ->on('departments')

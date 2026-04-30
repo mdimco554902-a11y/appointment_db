@@ -9,17 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up(): void
-{
-    Schema::create('patients', function (Blueprint $table) {
-        $table->id('PatientID');
-        $table->string('FirstName');
-        $table->string('LastName');
-        $table->string('Email')->unique();
-        $table->string('Phone')->nullable(); // Ensure this is exactly 'Phone'
-        $table->timestamps();
-    });
-}
+    public function up(): void
+    {
+        Schema::create('patients', function (Blueprint $table) {
+            $table->id('PatientID');
+            $table->string('FirstName');
+            $table->string('MiddleName')->nullable(); // Just place it here, no need for ->after()
+            $table->string('LastName');
+            $table->string('Email')->unique();
+            $table->string('Phone')->nullable(); 
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.

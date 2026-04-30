@@ -23,9 +23,9 @@ class DatabaseSeeder extends Seeder
         // 2. Create a Doctor linked to that Department
         // CHANGED: Use 'FName' and 'LName' to match your updated migration
         Doctor::updateOrCreate(
-            ['FName' => 'Sarah', 'LName' => 'Johnson'],
+            ['Firstname' => 'Sarah', 'LastName' => 'Johnson'],
             [
-                'MName' => null,
+                'MiddleName' => null,
                 'Specialization' => 'Cardiology',
                 'DeptID' => $dept->DeptID
             ]

@@ -21,13 +21,13 @@ class Doctor extends Model
 
     /**
      * The attributes that are mass assignable.
-     * These match the input names in your index.blade.php form.
+     * Updated to match your new professional column names.
      */
     protected $fillable = [
         'DeptID', 
-        'FName', 
-        'MName', 
-        'LName', 
+        'FirstName', 
+        'MiddleName', 
+        'LastName', 
         'Specialization'
     ];
 
@@ -41,11 +41,12 @@ class Doctor extends Model
     }
 
     /**
-     * Optional: Helper to get full name easily in views
+     * Helper to get full name easily in views.
+     * Updated to use the new column names.
      * Usage: $doc->full_name
      */
     public function getFullNameAttribute()
     {
-        return "Dr. {$this->FName} " . ($this->MName ? "{$this->MName} " : "") . $this->LName;
+        return "Dr. {$this->FirstName} " . ($this->MiddleName ? "{$this->MiddleName} " : "") . $this->LastName;
     }
 }

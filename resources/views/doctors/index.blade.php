@@ -97,7 +97,7 @@
                         <td>#{{ $doc->DoctorID }}</td>
                         <td>
                             <strong>
-                                Dr. {{ $doc->FName }} {{ $doc->MName ? $doc->MName . ' ' : '' }}{{ $doc->LName }}
+                                Dr. {{ $doc->FirstName }} {{ $doc->MiddleName ? $doc->MiddleName . ' ' : '' }}{{ $doc->LastName }}
                             </strong>
                         </td>
                         <td>{{ $doc->Specialization }}</td>
@@ -121,17 +121,17 @@
 
     <div id="addDoctorModal" class="modal-overlay">
         <div class="modal-container">
-            <h3 style="margin-top:0">Register New Doctor</h3>
+            <h3 style="margin-top:0; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 10px;">Register New Doctor</h3>
             <form action="{{ route('doctors.store') }}" method="POST">
                 @csrf
                 <label style="font-size: 13px; color: #666;">First Name</label>
-                <input type="text" name="FName" class="modal-input" required placeholder="Ex: Gregory">
+                <input type="text" name="FirstName" class="modal-input" required placeholder="Ex: Gregory">
                 
                 <label style="font-size: 13px; color: #666;">Middle Name</label>
-                <input type="text" name="MName" class="modal-input" placeholder="Optional">
+                <input type="text" name="MiddleName" class="modal-input" placeholder="Optional">
                 
                 <label style="font-size: 13px; color: #666;">Last Name</label>
-                <input type="text" name="LName" class="modal-input" required placeholder="Ex: House">
+                <input type="text" name="LastName" class="modal-input" required placeholder="Ex: House">
 
                 <label style="font-size: 13px; color: #666;">Specialization</label>
                 <input type="text" name="Specialization" class="modal-input" required placeholder="Ex: Diagnostic Medicine">
@@ -146,7 +146,7 @@
 
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                     <button type="submit" class="btn-create" style="flex: 2">Save Doctor</button>
-                    <button type="button" onclick="document.getElementById('addDoctorModal').style.display='none'" style="flex: 1; background: #eee; color: #333; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+                    <button type="button" onclick="closeModal()" style="flex: 1; background: #eee; color: #333; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
                 </div>
             </form>
         </div>
@@ -159,13 +159,13 @@
                 @csrf @method('PUT')
                 
                 <label style="font-size: 13px; color: #666;">First Name</label>
-                <input type="text" name="FName" id="edit_fname" class="modal-input" required>
+                <input type="text" name="FirstName" id="edit_firstname" class="modal-input" required>
                 
                 <label style="font-size: 13px; color: #666;">Middle Name</label>
-                <input type="text" name="MName" id="edit_mname" class="modal-input">
+                <input type="text" name="MiddleName" id="edit_middlename" class="modal-input">
                 
                 <label style="font-size: 13px; color: #666;">Last Name</label>
-                <input type="text" name="LName" id="edit_lname" class="modal-input" required>
+                <input type="text" name="LastName" id="edit_lastname" class="modal-input" required>
 
                 <label style="font-size: 13px; color: #666;">Specialization</label>
                 <input type="text" name="Specialization" id="edit_spec" class="modal-input" required>
@@ -179,25 +179,39 @@
 
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                     <button type="submit" class="btn-create" style="flex: 2; background: #3498db;">Update Profile</button>
-                    <button type="button" onclick="document.getElementById('editDoctorModal').style.display='none'" style="flex: 1; background: #eee; color: #333; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+                    <button type="button" onclick="closeModal()" style="flex: 1; background: #eee; color: #333; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        function openEditModal(doc) {
-            const form = document.getElementById('editForm');
-            form.action = `/doctors/${doc.DoctorID}`;
+    function openEditModal(doc) {
+        const form = document.getElementById('editForm');
+        form.action = `/doctors/${doc.DoctorID}`;
 
-            document.getElementById('edit_fname').value = doc.FName;
-            document.getElementById('edit_mname').value = doc.MName || '';
-            document.getElementById('edit_lname').value = doc.LName;
-            document.getElementById('edit_spec').value = doc.Specialization;
-            document.getElementById('edit_dept').value = doc.DeptID;
+        // Fixed IDs to match HTML: edit_firstname, edit_middlename, edit_lastname
+        document.getElementById('edit_firstname').value = doc.FirstName;
+        document.getElementById('edit_middlename').value = doc.MiddleName || ''; 
+        document.getElementById('edit_lastname').value = doc.LastName;
+        document.getElementById('edit_spec').value = doc.Specialization;
+        document.getElementById('edit_dept').value = doc.DeptID;
 
-            document.getElementById('editDoctorModal').style.display = 'flex';
+        document.getElementById('editDoctorModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('addDoctorModal').style.display = 'none';
+        document.getElementById('editDoctorModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const addModal = document.getElementById('addDoctorModal');
+        const editModal = document.getElementById('editDoctorModal');
+        if (event.target == addModal || event.target == editModal) {
+            closeModal();
         }
+    }
     </script>
 </body>
 </html>
