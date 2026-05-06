@@ -35,7 +35,6 @@
             border-radius: 5px;
         }
         
-        /* Highlight for the active page */
         .nav-item:hover, .nav-item.active { 
             background: #2d4d2d; 
             color: white !important; 
@@ -49,7 +48,7 @@
         .header h1 { margin: 0; font-size: 28px; }
 
         /* Stat Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
         .stat-card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid #27ae60; }
         .stat-card h3 { margin: 0; font-size: 14px; color: #7f8c8d; text-transform: uppercase; }
         .stat-card p { margin: 10px 0 0; font-size: 32px; font-weight: bold; color: #2c3e50; }
@@ -76,7 +75,9 @@
             font-size: 14px;
             cursor: pointer;
             border: none;
+            display: inline-block; /* Added to ensure link looks like a button */
         }
+        .btn-create:hover { background: #219150; color: white; }
 
         .btn-logout { 
             background: transparent; 
@@ -122,170 +123,163 @@
 </head>
 <body>
 
-    <div class="sidebar">
-        <h2>HealthCare Plus</h2>
-        <div class="role">Admin Dashboard</div>
+<div class="sidebar">
+    <h2>HealthCare Plus</h2>
+    <div class="role">{{ auth()->user()->isAdmin() ? 'Admin Dashboard' : 'Patient Portal' }}</div>
+    
+    <div class="nav-menu">
+        <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
         
-        <div class="nav-menu">
-            <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
-            <a href="{{ route('patients.index') }}" class="nav-item {{ request()->routeIs('patients.index') ? 'active' : '' }}">Patient Records</a>
-            <a href="{{ route('appointments.index') }}" class="nav-item {{ request()->routeIs('appointments.index') ? 'active' : '' }}">Appointments</a>
-            <a href="{{ route('doctors.index') }}" class="nav-item {{ request()->routeIs('doctors.index') ? 'active' : '' }}">Doctors</a>
-            <a href="{{ route('departments.index') }}" class="nav-item {{ request()->routeIs('departments.index') ? 'active' : '' }}">Departments</a>
-        </div>
+        @if(auth()->user()->isAdmin())
+            <a href="{{ route('services.index') }}" class="nav-item {{ request()->is('services*') ? 'active' : '' }}">Medical Services</a>
+            <a href="{{ route('schedules.index') }}" class="nav-item {{ request()->is('schedules*') ? 'active' : '' }}">Daily Schedules</a>
+            <a href="{{ route('patients.index') }}" class="nav-item {{ request()->is('patients*') ? 'active' : '' }}">Patient Records</a>
+        @endif
 
-        <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="btn-logout">LOGOUT</button>
-        </form>
+        <a href="{{ route('appointments.index') }}" class="nav-item {{ request()->is('appointments*') ? 'active' : '' }}">Appointments</a>
+
+        @if(auth()->user()->isAdmin())
+            <a href="{{ route('doctors.index') }}" class="nav-item {{ request()->is('doctors*') ? 'active' : '' }}">Doctors</a>
+            <a href="{{ route('departments.index') }}" class="nav-item {{ request()->is('departments*') ? 'active' : '' }}">Departments</a>
+        @endif
     </div>
 
-    <div class="main">
-        <div class="header">
-            <div>
-                <h1>Welcome, {{ Auth::user()->name }}</h1>
-                <p>HealthCare Plus Appointment System</p>
-            </div>
-            <button onclick="document.getElementById('appointmentModal').style.display='flex'" class="btn-create">+ New Appointment</button>
-        </div>
+    <form action="{{ route('logout') }}" method="POST">
+        @csrf
+        <button type="submit" class="btn-logout">LOGOUT</button>
+    </form>
+</div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Total Patients</h3>
-                <p>{{ $totalPatients }}</p>
-            </div>
-            <div class="stat-card" style="border-left-color: #2980b9;">
-                <h3>Total Appointments</h3>
-                <p>{{ $totalAppointments }}</p>
-            </div>
-            <div class="stat-card" style="border-left-color: #f39c12;">
-                <h3>Active Doctors</h3>
-                <p>{{ $activeDoctors }}</p>
-            </div>
+<div class="main">
+    <div class="header">
+        <div>
+            <h1>Welcome, {{ Auth::user()->name }}</h1>
+            <p>HealthCare Plus Appointment System</p>
         </div>
+        <a href="{{ route('appointments.index') }}" class="btn-create">+ New Appointment</a>
+    </div>
 
-        <div class="content-card">
-            <h3>Recent Appointments</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Patient</th>
-                        <th>Doctor</th>
-                        <th>Time</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($appointments as $app)
-                    <tr>
-                        <td>#{{ $app->PatientID }}</td>
-                        <td>
-                            @if($app->patient)
-                                {{ $app->patient->FirstName }} {{ $app->patient->LastName }}
-                            @else
-                                <span style="color: #e67e22; font-weight:bold;">ID: {{ $app->PatientID }} (Pending Data)</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($app->doctor)
-                                Dr. {{ $app->doctor->LastName }}
-                            @else
-                                <span style="color: #e67e22; font-weight:bold;">ID: {{ $app->DoctorID }} (Pending Data)</span>
-                            @endif
-                        </td>
-                        <td>{{ $app->AppointmentTime }}</td>
-                        <td><span class="status-pill status-{{ strtolower($app->Status ?? 'pending') }}">{{ $app->Status ?? 'Pending' }}</span></td>
-                        <td style="display: flex; align-items: center;">
+    <div class="stats-grid">
+        @if(auth()->user()->isAdmin())
+        <div class="stat-card">
+            <h3>Total Patients</h3>
+            <p>{{ $totalPatients }}</p>
+        </div>
+        @endif
+        
+        <div class="stat-card" style="border-left-color: #2980b9;">
+            <h3>Total Appointments</h3>
+            <p>{{ $totalAppointments }}</p>
+        </div>
+        
+        <div class="stat-card" style="border-left-color: #f39c12;">
+            <h3>Active Doctors</h3>
+            <p>{{ $activeDoctors }}</p>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <h3>Recent Appointments</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($appointments as $app)
+                <tr>
+                    <td>#{{ $app->AppointmentID }}</td>
+                    <td>
+                        @if($app->patient)
+                            {{ $app->patient->FirstName }} {{ $app->patient->LastName }}
+                        @else
+                            <span style="color: #e67e22; font-weight:bold;">ID: {{ $app->PatientID }} (Pending Data)</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($app->doctor)
+                            Dr. {{ $app->doctor->LastName }}
+                        @else
+                            <span style="color: #e67e22; font-weight:bold;">ID: {{ $app->DoctorID }} (Pending Data)</span>
+                        @endif
+                    </td>
+                    <td>{{ $app->AppointmentTime }}</td>
+                    <td><span class="status-pill status-{{ strtolower($app->Status ?? 'pending') }}">{{ $app->Status ?? 'Pending' }}</span></td>
+                    <td style="display: flex; align-items: center;">
+                        @if(auth()->user()->isAdmin())
                             <button class="btn-edit-action" onclick="openEditModal({{ json_encode($app) }})">Edit</button>
 
                             <form action="{{ route('appointments.destroy', $app->AppointmentID) }}" method="POST" onsubmit="return confirm('Cancel this appointment?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" style="color: #e74c3c; background:none; border:none; cursor:pointer;">Cancel</button>
                             </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" style="text-align:center; padding: 30px; color: #95a5a6;">No appointments found in the system.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                        @else
+                            @if(strtolower($app->Status ?? 'pending') === 'pending')
+                                <form action="{{ route('appointments.destroy', $app->AppointmentID) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel your booking?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" style="color: #e67e22; background:none; border:none; cursor:pointer; font-weight:bold;">Cancel My Booking</button>
+                                </form>
+                            @else
+                                <span style="color: #95a5a6; font-size: 12px;">No Actions</span>
+                            @endif
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="6" style="text-align:center; padding: 30px; color: #95a5a6;">No appointments found in the system.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
+</div>
 
-    <div id="appointmentModal" class="modal-overlay">
-        <div class="modal-container">
-            <h3 style="margin-top: 0;">Add New Appointment</h3>
+<div id="editModal" class="modal-overlay">
+    <div class="modal-container">
+        <h3 style="margin-top: 0;">Edit Appointment #<span id="edit-id-display"></span></h3>
+        
+        <form id="editForm" method="POST">
+            @csrf
+            @method('PUT')
+
+            <label style="font-size: 13px; color: #666;">Appointment Time</label>
+            <input type="time" name="AppointmentTime" id="edit-time" required class="modal-input">
+
+            <label style="font-size: 13px; color: #666;">Status</label>
+            <select name="Status" id="edit-status" class="modal-input" style="height: 40px;">
+                <option value="Pending">Pending</option>
+                <option value="Confirmed">Confirmed</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
             
-            <form action="{{ route('appointments.store') }}" method="POST">
-                @csrf
-                <input type="hidden" name="Status" value="Pending">
-
-                <label style="font-size: 13px; color: #666;">Patient ID</label>
-                <input type="number" name="PatientID" placeholder="e.g. 1" required class="modal-input">
-                
-                <label style="font-size: 13px; color: #666;">Doctor ID</label>
-                <input type="number" name="DoctorID" placeholder="e.g. 1" required class="modal-input">
-                
-                <label style="font-size: 13px; color: #666;">Schedule ID</label>
-                <input type="number" name="ScheduleID" placeholder="e.g. 1" required class="modal-input">
-                
-                <label style="font-size: 13px; color: #666;">Appointment Time</label>
-                <input type="time" name="AppointmentTime" required class="modal-input">
-                
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button type="submit" style="flex: 2; background: #27ae60; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold;">Save</button>
-                    <button type="button" onclick="document.getElementById('appointmentModal').style.display='none'" style="flex: 1; background: #eee; border: none; padding: 12px; border-radius: 5px; cursor: pointer;">Close</button>
-                </div>
-            </form>
-        </div>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button type="submit" style="flex: 2; background: #3498db; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold;">Update</button>
+                <button type="button" onclick="document.getElementById('editModal').style.display='none'" style="flex: 1; background: #eee; border: none; padding: 12px; border-radius: 5px; cursor: pointer;">Cancel</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div id="editModal" class="modal-overlay">
-        <div class="modal-container">
-            <h3 style="margin-top: 0;">Edit Appointment #<span id="edit-id-display"></span></h3>
-            
-            <form id="editForm" method="POST">
-                @csrf
-                @method('PUT')
+<script>
+    function openEditModal(app) {
+        const form = document.getElementById('editForm');
+        form.action = `/appointments/${app.AppointmentID}`;
 
-                <label style="font-size: 13px; color: #666;">Appointment Time</label>
-                <input type="time" name="AppointmentTime" id="edit-time" required class="modal-input">
+        document.getElementById('edit-id-display').innerText = app.AppointmentID;
+        document.getElementById('edit-time').value = app.AppointmentTime;
+        document.getElementById('edit-status').value = app.Status || 'Pending';
 
-                <label style="font-size: 13px; color: #666;">Status</label>
-                <select name="Status" id="edit-status" class="modal-input" style="height: 40px;">
-                    <option value="Pending">Pending</option>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Cancelled">Cancelled</option>
-                </select>
-                
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button type="submit" style="flex: 2; background: #3498db; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold;">Update</button>
-                    <button type="button" onclick="document.getElementById('editModal').style.display='none'" style="flex: 1; background: #eee; border: none; padding: 12px; border-radius: 5px; cursor: pointer;">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function openEditModal(app) {
-            // Set the form action URL dynamically
-            const form = document.getElementById('editForm');
-            form.action = `/appointments/${app.AppointmentID}`;
-
-            // Pre-fill the fields
-            document.getElementById('edit-id-display').innerText = app.AppointmentID;
-            document.getElementById('edit-time').value = app.AppointmentTime;
-            document.getElementById('edit-status').value = app.Status || 'Pending';
-
-            // Show the modal
-            document.getElementById('editModal').style.display = 'flex';
-        }
-    </script>
+        document.getElementById('editModal').style.display = 'flex';
+    }
+</script>
 
 </body>
 </html>

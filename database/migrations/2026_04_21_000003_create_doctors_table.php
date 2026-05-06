@@ -13,28 +13,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('doctors', function (Blueprint $table) {
-            // Primary Key
-            $table->id('DoctorID'); 
-            
-            // Foreign Key to Departments
-            $table->unsignedBigInteger('DeptID'); 
-            
-            // Professional Name Columns
-            $table->string('FirstName');
-            $table->string('MiddleName')->nullable(); // Optional field
-            $table->string('LastName');
-            
-            // Professional Details
-            $table->string('Specialization');
-            
-            // Standard timestamps (created_at, updated_at)
+            $table->id('DoctorID');
+            $table->string('FirstName', 50);
+            $table->string('MiddleName', 50)->nullable(); 
+            $table->string('LastName', 50);
+            $table->string('Specialization', 100);
+            $table->unsignedBigInteger('DeptID');
+            // Foreign Key Constraint
+            $table->foreign('DeptID')->references('DeptID')->on('departments')->onDelete('cascade');
             $table->timestamps();
-
-            // Foreign Key constraint
-            $table->foreign('DeptID')
-                  ->references('DeptID')
-                  ->on('departments')
-                  ->onDelete('cascade');
         });
     }
 

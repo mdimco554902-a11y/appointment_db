@@ -15,20 +15,25 @@ class Patient extends Model
     // Allows mass assignment for these specific fields
     protected $fillable = [
         'FirstName',
-        'MiddleName', // Added MiddleName to match database design
+        'MiddleName', 
         'LastName',
         'Email',
         'Phone',
-        'DateOfBirth',
+        'Age',
+        'BirthDate', // Corrected from DateOfBirth to match migration
+        'Gender',    // Added new clinical field
+        'Height',    // Added new clinical field
+        'BloodType', // Added new clinical field
+        
         'Address'
     ];
 
     /**
      * The attributes that should be cast.
-     * This ensures DateOfBirth is treated as a Carbon date object.
+     * This ensures BirthDate is treated as a Carbon date object.
      */
     protected $casts = [
-        'DateOfBirth' => 'date',
+        'BirthDate' => 'date', // Corrected name to match database
     ];
 
     /**

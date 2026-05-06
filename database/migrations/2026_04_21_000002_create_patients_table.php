@@ -11,14 +11,28 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patients', function (Blueprint $table) {
-            $table->id('PatientID');
-            $table->string('FirstName');
-            $table->string('MiddleName')->nullable(); // Just place it here, no need for ->after()
-            $table->string('LastName');
-            $table->string('Email')->unique();
-            $table->string('Phone')->nullable(); 
-            $table->timestamps();
+        Schema::create('patients', function (Blueprint $blueprint) {
+            // Primary Key
+            $blueprint->id('PatientID'); 
+
+            // Personal Information
+            $blueprint->string('FirstName');
+            $blueprint->string('MiddleName')->nullable();
+            $blueprint->string('LastName');
+            
+            // Contact Information
+            $blueprint->string('Email')->unique();
+            $blueprint->string('Phone')->nullable();
+            
+            // Medical/Demographic Info (Matching your Controller)
+            $blueprint->integer('Age')->nullable();
+            $blueprint->date('BirthDate')->nullable();
+            $blueprint->string('Gender', 20)->nullable();
+            $blueprint->decimal('Height', 5, 2)->nullable(); // Up to 999.99
+            $blueprint->string('BloodType', 5)->nullable();
+            $blueprint->text('Address')->nullable();
+
+            $blueprint->timestamps();
         });
     }
 

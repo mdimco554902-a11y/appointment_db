@@ -46,4 +46,13 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Check if the user is an administrator based on their email.
+     * This avoids needing a 'role' column in the database.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->email === 'admin@gmail.com';
+    }
 }

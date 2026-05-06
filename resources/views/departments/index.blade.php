@@ -27,17 +27,31 @@
 </head>
 <body>
     <div class="sidebar">
-        <h2>HealthCare Plus</h2>
-        <div class="role">Admin Dashboard</div>
-        <div class="nav-menu">
-            <a href="{{ route('dashboard') }}" class="nav-item">Dashboard</a>
-            <a href="{{ route('patients.index') }}" class="nav-item">Patient Records</a>
-            <a href="{{ route('appointments.index') }}" class="nav-item">Appointments</a>
-            <a href="{{ route('doctors.index') }}" class="nav-item">Doctors</a>
-            <a href="{{ route('departments.index') }}" class="nav-item active">Departments</a>
-        </div>
-        <form action="{{ route('logout') }}" method="POST">@csrf<button type="submit" class="btn-logout">LOGOUT</button></form>
+    <h2>HealthCare Plus</h2>
+    <div class="role">{{ auth()->user()->isAdmin() ? 'Departments' : 'Patient Portal' }}</div>
+    
+    <div class="nav-menu">
+        <a href="{{ route('dashboard') }}" class="nav-item {{ request()->is('dashboard*') ? 'active' : '' }}">Dashboard</a>
+        
+        @if(auth()->user()->isAdmin())
+            <a href="{{ route('services.index') }}" class="nav-item {{ request()->is('services*') ? 'active' : '' }}">Medical Services</a>
+            <a href="{{ route('schedules.index') }}" class="nav-item {{ request()->is('schedules*') ? 'active' : '' }}">Daily Schedules</a>
+            <a href="{{ route('patients.index') }}" class="nav-item {{ request()->is('patients*') ? 'active' : '' }}">Patient Records</a>
+        @endif
+
+        <a href="{{ route('appointments.index') }}" class="nav-item {{ request()->is('appointments*') ? 'active' : '' }}">Appointments</a>
+
+        @if(auth()->user()->isAdmin())
+            <a href="{{ route('doctors.index') }}" class="nav-item {{ request()->is('doctors*') ? 'active' : '' }}">Doctors</a>
+            <a href="{{ route('departments.index') }}" class="nav-item {{ request()->is('departments*') ? 'active' : '' }}">Departments</a>
+        @endif
     </div>
+
+    <form action="{{ route('logout') }}" method="POST">
+        @csrf
+        <button type="submit" class="btn-logout">LOGOUT</button>
+    </form>
+</div>
 
     <div class="main">
         <div class="header">

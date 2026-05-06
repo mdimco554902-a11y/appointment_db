@@ -41,6 +41,23 @@ class Doctor extends Model
     }
 
     /**
+     * UPDATED: Relationship for the services the doctor provides.
+     * Connects via the doctor_service pivot table.
+     */
+    public function services() 
+    {
+        return $this->belongsToMany(Service::class, 'doctor_service', 'DoctorID', 'ServiceID');
+    }
+
+    /**
+     * UPDATED: Relationship for the booking records associated with the doctor.
+     */
+    public function bookingRecords() 
+    {
+        return $this->hasMany(BookingRecord::class, 'DoctorID', 'DoctorID');
+    }
+
+    /**
      * Helper to get full name easily in views.
      * Updated to use the new column names.
      * Usage: $doc->full_name
