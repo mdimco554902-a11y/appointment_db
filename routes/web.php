@@ -8,11 +8,16 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ServiceController; // Added for Service functionality
 use App\Http\Controllers\DailyScheduleController; // Added for Schedule functionality
+use App\Http\Controllers\RegisterController; // Added for Registration functionality
 
 // --- GUEST ROUTES ---
 Route::middleware('guest')->group(function () {
     Route::get('/', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+
+    // Registration Routes
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
 });
 
 // --- AUTHENTICATED ROUTES ---

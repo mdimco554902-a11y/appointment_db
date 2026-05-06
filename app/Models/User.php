@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role', // Added to allow mass assignment during registration
     ];
 
     /**
@@ -48,11 +49,21 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user is an administrator based on their email.
-     * This avoids needing a 'role' column in the database.
+     * Check if the user is an administrator.
+     * Updated to check the 'role' column for better flexibility.
      */
     public function isAdmin(): bool
     {
-        return $this->email === 'admin@gmail.com';
+        // Still checks for the specific email as a backup, 
+        // but primarily relies on the 'admin' role.
+        return $this->role === 'admin' || $this->email === 'admin@gmail.com';
+    }
+
+    /**
+     * Check if the user is a patient.
+     */
+    public function isPatient(): bool
+    {
+        return $this->role === 'patient';
     }
 }

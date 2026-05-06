@@ -74,18 +74,19 @@ class AppointmentController extends Controller
     public function store(Request $request) 
     {
         $request->validate([
-            'ScheduleID'    => 'required',
-            'ServiceID'     => 'required',
-            'BookingReason' => 'nullable|string',
+            'ScheduleID'      => 'required',
+            'ServiceID'       => 'required',
+            'AppointmentTime' => 'required', // Added required validation for time
+            'BookingReason'   => 'nullable|string',
             // Manual Patient Entry Validation
-            'FirstName'     => 'required_without:PatientID',
-            'MiddleName'    => 'nullable', // Optional Middle Name
-            'LastName'      => 'required_without:PatientID',
-            'Email'         => 'required_without:PatientID|email',
-            'Phone'         => 'required_without:PatientID',
-            'Gender'        => 'required_without:PatientID',
-            'Age'           => 'required_without:PatientID',
-            'BirthDate'     => 'required_without:PatientID',
+            'FirstName'       => 'required_without:PatientID',
+            'MiddleName'      => 'nullable', 
+            'LastName'        => 'required_without:PatientID',
+            'Email'           => 'required_without:PatientID|email',
+            'Phone'           => 'required_without:PatientID',
+            'Gender'          => 'required_without:PatientID',
+            'Age'             => 'required_without:PatientID',
+            'BirthDate'       => 'required_without:PatientID',
         ]);
 
         try {
@@ -123,7 +124,7 @@ class AppointmentController extends Controller
                 'PriorityNumber'  => $priorityNumber,
                 'BookingReason'   => $request->BookingReason,
                 'Shift'           => $schedule->Shift, 
-                'AppointmentTime' => $request->AppointmentTime,
+                'AppointmentTime' => $request->AppointmentTime, // Captured from form
                 'Status'          => 'Pending'
             ]);
             

@@ -198,7 +198,7 @@
                         <th>Patient</th>
                         <th>Doctor</th>
                         <th>Service</th>
-                        <th>Date & Shift</th>
+                        <th>Date & Time</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -214,7 +214,9 @@
                             <div style="font-weight: 500;">
                                 {{ $app->dailySchedule ? \Carbon\Carbon::parse($app->dailySchedule->AvailableDate)->format('M d, Y') : 'N/A' }}
                             </div>
-                            <div style="font-size: 11px; color: #7f8c8d;">{{ $app->Shift }}</div>
+                            <div style="font-size: 11px; color: #27ae60; font-weight: bold;">
+                                {{ $app->AppointmentTime ? \Carbon\Carbon::parse($app->AppointmentTime)->format('h:i A') : 'N/A' }} ({{ $app->Shift }})
+                            </div>
                         </td>
                         <td>
                             <span class="status-pill status-{{ strtolower($app->Status ?? 'pending') }}">
@@ -306,6 +308,9 @@
                 @endforeach
             </select>
 
+            <label style="font-size: 13px; color: #666;">Preferred Time</label>
+            <input type="time" name="AppointmentTime" class="modal-input" required>
+
             <label style="font-size: 13px; color: #666;">Select Medical Service</label>
             <select name="ServiceID" class="modal-input" required>
                 <option value="" disabled selected>-- Choose Service --</option>
@@ -355,6 +360,7 @@
             form.action = `/appointments/${id}`;
             
             if(time) {
+                // Ensure time is in 24hr format (HH:MM) for the input field
                 document.getElementById('editTime').value = time;
             }
             
